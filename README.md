@@ -1,0 +1,1 @@
+Used openexchangerates API for requesting for exchange rates. Used MVI patter for presentation layer. Used Hilt for DI, used Retorfit for remote and Room/Sharedprefs for local storage. Used coroutines for concurrency
