@@ -1,6 +1,5 @@
 package com.example.exchange.features.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exchange.data.model.ExchangeRate
@@ -11,7 +10,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -25,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val repository: ExchangeRepository) : ViewModel() {
 
+    private val REFRESH_TIMEOUT = 5000L
     private val _state = MutableStateFlow(HomeState(emptyList(), true))
     val state = _state.asStateFlow()
     private val channel = Channel<HomeEvent>()
@@ -64,7 +63,7 @@ class HomeViewModel @Inject constructor(private val repository: ExchangeReposito
     private fun getCounterFlow() = flow {
         while (true) {
             emit(Unit)
-            delay(30000)
+            delay(REFRESH_TIMEOUT)
         }
     }
 
@@ -98,7 +97,6 @@ class HomeViewModel @Inject constructor(private val repository: ExchangeReposito
     private suspend fun loadLocalExchanges(error: String) {
         try {
             val result = repository.loadLocalExchangeRates()
-            Log.d("MYTAG", "local $result")
             if (result.isNotEmpty()) {
                 _state.update {
                     it.copy(rates = result, isLoading = false, error = null)
